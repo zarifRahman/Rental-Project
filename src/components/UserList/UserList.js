@@ -12,8 +12,6 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import { data } from "../../data";
 import DateFnsUtils from "@date-io/date-fns";
-import MomentUtils from "@date-io/moment";
-import LuxonUtils from "@date-io/luxon";
 
 import {
   Dialog,
@@ -55,6 +53,21 @@ const useStyles = makeStyles((theme) => ({
     marginTop: "10px",
     marginBottom: "10px",
   },
+  datePicker: {
+    display: "flex",
+    marginTop: "20px",
+    marginBottom: "20px",
+    justifyContent: "flex-end",
+  },
+  button: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  buttonAlignment: {
+    width: "40px",
+    marginRight: "10px",
+  },
 }));
 
 export default function UserList() {
@@ -62,20 +75,19 @@ export default function UserList() {
   const [agent, setAgent] = useState("");
   const [users, setUsers] = useState([]);
   const [price, setPrice] = useState("");
-  console.log({ price });
+  const [query, setQuery] = useState("");
+  const [rentalPeriod, setRentalPeriod] = useState("");
+  const [needRepair, setNeedRepair] = useState("");
+  const [maxDurability, setMaxDurability] = useState("");
+  const [type, setType] = useState("");
 
   useEffect(() => {
     setUsers(data);
   }, []);
-
-  // ---- search ----
-  const [query, setQuery] = useState("");
-
   // --- Dialog ----
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const handleClickOpen = () => setOpen(true);
   const handleBookProduct = () => {
     setOpen(false);
     setOpenDialog(true);
@@ -89,6 +101,10 @@ export default function UserList() {
     data.map((val) => {
       if (val.name === event.target.value) {
         setPrice(val.price);
+        setRentalPeriod(val.minimum_rent_period);
+        setNeedRepair(val.needing_repair);
+        setMaxDurability(val.max_durability);
+        setType(val.type);
       }
     });
     setAgent(event.target.value);
@@ -161,7 +177,7 @@ export default function UserList() {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={(e) => handleClickOpen(e)}
+                // onClick={(e) => handleClickReturnOpen(e)}
               >
                 RETURN
               </Button>
@@ -174,7 +190,6 @@ export default function UserList() {
                 <Select
                   fullWidth
                   value={agent ?? " "}
-                  // onChange={(event) => setAgent(event.target.value)}
                   onChange={handleMenuClick}
                 >
                   {data?.map(
@@ -187,13 +202,7 @@ export default function UserList() {
                   )}
                 </Select>
               </FormControl>
-              <div
-                style={{
-                  display: "flex",
-                  marginTop: "20px",
-                  marginBottom: "20px",
-                }}
-              >
+              <div className={classes.datePicker}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <div style={{ marginRight: "20px" }}>
                     <DatePicker
@@ -209,17 +218,11 @@ export default function UserList() {
                   />
                 </MuiPickersUtilsProvider>
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                }}
-              >
+              <div className={classes.button}>
                 <Button
-                  style={{ width: "40px", marginRight: "10px" }}
+                  className={classes.buttonAlignment}
                   variant="text"
-                  color="#1976d2"
+                  color="primary"
                   onClick={handleBookProduct}
                 >
                   Yes
@@ -228,7 +231,7 @@ export default function UserList() {
                   onClick={handleClose}
                   style={{ width: "40px" }}
                   variant="text"
-                  color="#1976d2"
+                  color="primary"
                 >
                   No
                 </Button>
@@ -244,22 +247,31 @@ export default function UserList() {
             <DialogTitle>Book a Product</DialogTitle>
             <div className={classes.textAlign}>
               <div className={classes.upperTextAlign}>
-                Your esltimation price is ${price * Difference_In_Days}
+                <h4>Your estimation price: ${price * Difference_In_Days}</h4>
+                <h4>Rental Period: {rentalPeriod}</h4>
+                <h4>
+                  Mileage:
+                  {Difference_In_Days * 10}
+                </h4>
+                <h4>Need repairing: {needRepair === true ? "Yes" : "No"}</h4>
+                <h4>
+                  Durability:
+                  {type === "plain"
+                    ? maxDurability - Difference_In_Days
+                    : maxDurability - Difference_In_Days * 2}
+                </h4>
               </div>
-              <div>Do you want to proceed?</div>
+              <div>
+                <h4>Do you want to proceed?</h4>
+              </div>
             </div>
             <DialogContent>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                }}
-              >
+              <div className={classes.datePicker}>
                 <Button
-                  style={{ width: "40px", marginRight: "10px" }}
+                  className={classes.buttonAlignment}
                   variant="text"
                   color="primary"
+                  onClick={handleCloseDialog}
                 >
                   Yes
                 </Button>
